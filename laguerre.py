@@ -1,3 +1,4 @@
+## import modules
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,6 +8,10 @@ import sklearn as sk
 import itertools
 import math
 import datetime
+
+import sys
+sys.modules.keys()
+##
 
 class Laguerre:
 
