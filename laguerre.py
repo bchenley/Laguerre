@@ -52,7 +52,7 @@ class Laguerre:
                 step +=1
                 values = np.append(values,np.zeros((1,units)),axis = 0)
 
-      self.values = tf.constant(values,dtype = self.dtype)
+      self.values = tf.constant(values)
       self.steps = tf.linspace(0,step,step+1)
 
   def conv(self, input):  
@@ -67,7 +67,7 @@ class Laguerre:
       for i,val in enumerate(tf.transpose(values)):
           output[:,i] = np.convolve(input,val.numpy())[:len(input)]
 
-      return tf.constant(output,dtype = self.dtype)
+      return tf.constant(output)
 
   ### Leguerre Rnn cell
   class LaguerreCell(tf.keras.layers.Layer):
