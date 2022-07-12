@@ -16,6 +16,7 @@ sys.modules.keys()
 class Laguerre:
 
   def __init__(self, units = 1, relax = 0.5, samp_interval = 1, thresh = 1e-4, dtype = 'float16'):
+    
       '''
       units = number of discrete Laguerre functions.
       relax = relaxation parameter. Must be between (0,1)
@@ -27,7 +28,8 @@ class Laguerre:
       self.relax = relax
       self.samp_interval = samp_interval
       self.thresh = thresh
-
+      self.dtype = dtype 
+      
       sqrt_relax = np.sqrt(relax)
       sqrt_1_minus_relax = np.sqrt(1-relax)
 
