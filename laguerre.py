@@ -15,7 +15,7 @@ sys.modules.keys()
 
 class Laguerre:
 
-  def __init__(self, units = 1, relax = 0.5, samp_interval = 1, thresh = 1e-4):
+  def __init__(self, units = 1, relax = 0.5, samp_interval = 1, thresh = 1e-4, dtype = 'float16'):
       '''
       units = number of discrete Laguerre functions.
       relax = relaxation parameter. Must be between (0,1)
@@ -52,7 +52,7 @@ class Laguerre:
                 step +=1
                 values = np.append(values,np.zeros((1,units)),axis = 0)
 
-      self.values = tf.constant(values)
+      self.values = tf.constant(values, dtype = dtype)
       self.steps = tf.linspace(0,step,step+1)
 
   def conv(self, input):  
@@ -67,7 +67,7 @@ class Laguerre:
       for i,val in enumerate(tf.transpose(values)):
           output[:,i] = np.convolve(input,val.numpy())[:len(input)]
 
-      return tf.constant(output)
+      return tf.constant(output, dtype = dtype)
 
   ### Leguerre Rnn cell
   class LaguerreCell(tf.keras.layers.Layer):
