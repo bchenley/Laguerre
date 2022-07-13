@@ -173,8 +173,8 @@ class HiddenLayer(tf.keras.layers.Layer):
   def call(self, input):
 
       degree = self.degree
-      w = self.w
-      c = self.c
+      w = tf.cast(self.w, input.dtype)
+      c = tf.cast(self.c, input.dtype)
 
       output = ()
 
@@ -237,8 +237,8 @@ class InteractionLayer(tf.keras.layers.Layer):
   def call(self, input):
 
       degree = self.degree
-      w = self.wi
-      c = self.ci
+      w = tf.cast(self.wi, input.dtype)
+      c = tf.cast(self.ci, input.dtype)
 
       y = 0.
       for i in range(len(input)):
@@ -297,9 +297,12 @@ class OutputLayer(tf.keras.layers.Layer):
                                 regularizer = self.wo_reg,
                                 name = self.wo_name)
 
-  def call(self, inputs):
-
-      outputs = inputs @ self.wo + self.bo
+  def call(self, input):
+      
+      wo = tf.cast(self.wo, input.dtype)
+      bo = tf.cast(self.bo, input.dtype)
+      
+      outputs = inputs @ wo + bo
 
       return outputs
 
