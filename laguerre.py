@@ -15,7 +15,7 @@ sys.modules.keys()
 
 class DLF:
 
-  def __init__(self, units = 1, relax = 0.5, samp_interval = 1, thresh = 1e-4, dtype = 'float16'):
+  def __init__(self, units = 1, relax = 0.5, samp_interval = 1, thresh = 1e-4):
     
       '''
       units = number of discrete Laguerre functions.
@@ -28,7 +28,6 @@ class DLF:
       self.relax = relax
       self.samp_interval = samp_interval
       self.thresh = thresh
-      self.dtype = dtype 
       
       sqrt_relax = np.sqrt(relax)
       sqrt_1_minus_relax = np.sqrt(1-relax)
@@ -54,7 +53,7 @@ class DLF:
                 step +=1
                 values = np.append(values,np.zeros((1,units)),axis = 0)
 
-      self.values = tf.constant(values, dtype = self.dtype)
+      self.values = values
       self.steps = tf.linspace(0,step,step+1)
 
   def conv(self, input):  
@@ -69,7 +68,7 @@ class DLF:
       for i,val in enumerate(tf.transpose(values)):
           output[:,i] = np.convolve(input,val.numpy())[:len(input)]
 
-      return tf.constant(output, dtype = self.dtype)
+      return tf.constant(output)
 
 ### Leguerre Rnn cell
 class FilterbankCell(tf.keras.layers.Layer):
@@ -109,7 +108,7 @@ class FilterbankCell(tf.keras.layers.Layer):
       input_i = input[:,i:i+1]  
       prev_output_i = prev_output[i]
       
-      relax_i = tf.cast(self.relax[i], input_i.dtype)
+      relax_i = self.relax[i]
       sqrt_relax_i = tf.math.sqrt(relax_i)
       sqrt_1_minus_relax_i = tf.math.sqrt(1 - relax_i)
 
@@ -173,8 +172,8 @@ class HiddenLayer(tf.keras.layers.Layer):
   def call(self, input):
 
       degree = self.degree
-      w = tf.cast(self.w, input.dtype)
-      c = tf.cast(self.c, input.dtype)
+      w = self.w
+      c = self.c
 
       output = ()
 
@@ -237,8 +236,8 @@ class InteractionLayer(tf.keras.layers.Layer):
   def call(self, input):
 
       degree = self.degree
-      w = tf.cast(self.wi, input.dtype)
-      c = tf.cast(self.ci, input.dtype)
+      w = self.wi
+      c = self.ci
 
       y = 0.
       for i in range(len(input)):
@@ -299,8 +298,8 @@ class OutputLayer(tf.keras.layers.Layer):
 
   def call(self, input):
       
-      wo = tf.cast(self.wo, input.dtype)
-      bo = tf.cast(self.bo, input.dtype)
+      wo = self.wo
+      bo = self.bo
       
       outputs = inputs @ wo + bo
 
