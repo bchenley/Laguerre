@@ -108,8 +108,10 @@ class FilterbankCell(tf.keras.layers.Layer):
 
       input_i = input[:,i:i+1]  
       prev_output_i = prev_output[i]
-      sqrt_relax_i = tf.math.sqrt(self.relax[i])
-      sqrt_1_minus_relax_i = tf.math.sqrt(1 - self.relax[i])
+      
+      relax_i = tf.cast(self.relax[i], input_i.dtype)
+      sqrt_relax_i = tf.math.sqrt(relax_i)
+      sqrt_1_minus_relax_i = tf.math.sqrt(1 - relax_i)
 
       output_i = sqrt_relax_i*prev_output_i[:,0:1] + T*sqrt_1_minus_relax_i*input_i
 
