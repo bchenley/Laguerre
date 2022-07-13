@@ -94,7 +94,7 @@ class FilterbankCell(tf.keras.layers.Layer):
                                     trainable = relax_trainable,
                                     name = relax_name[i]),)      
 
-      super(LaguerreCell, self).__init__(**kwargs)
+      super(FilterbankCell, self).__init__(**kwargs)
 
   def call(self, input, state):
 
