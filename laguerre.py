@@ -135,7 +135,7 @@ class FilterbankCell(tf.keras.layers.Layer):
 class HiddenLayer(tf.keras.layers.Layer):
 
   def __init__(self, units = (1,), degree = (1,),                    
-                w_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.055), w_trainable = True, w_reg = None, w_name = ('w1',),
+                w_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.05), w_trainable = True, w_reg = None, w_name = ('w1',),
                 c_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.05), c_trainable = True, c_reg = None, c_name = ('c1',),
                 **kwargs):
 
