@@ -72,7 +72,7 @@ class Laguerre:
       return tf.constant(output, dtype = self.dtype)
 
   ### Leguerre Rnn cell
-  class LaguerreCell(tf.keras.layers.Layer):
+  class FilterbankCell(tf.keras.layers.Layer):
 
     def __init__(self, units = (1,),
                 relax_init = (0.5,), relax_trainable = True,                    
