@@ -301,7 +301,7 @@ class OutputLayer(tf.keras.layers.Layer):
       wo = self.wo
       bo = self.bo
       
-      outputs = inputs @ wo + bo
+      outputs = input @ wo + bo
 
       return outputs
 
