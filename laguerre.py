@@ -13,7 +13,7 @@ import sys
 sys.modules.keys()
 ##
 
-class Laguerre:
+class DLF:
 
   def __init__(self, units = 1, relax = 0.5, samp_interval = 1, thresh = 1e-4, dtype = 'float16'):
     
