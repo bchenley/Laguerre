@@ -306,3 +306,8 @@ class OutputLayer(tf.keras.layers.Layer):
               "wo_init": self.wo_init, "wo_trainable": self.wo_trainable, "wo_reg": self.wo_reg, "wo_name": self.wo_name,
               "bo_init": self.bo_init, "bo_trainable": self.bo_trainable, "bo_reg": self.bo_reg, "bo_name": self.bo_name}
   ### 
+
+### NMSE  
+def nmse(y_true,y_pred):
+  return tf.reduce_mean(tf.pow(y_true-y_pred,2)) / tf.reduce_mean(y_true**2)  
+###
