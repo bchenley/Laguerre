@@ -129,7 +129,7 @@ class FilterbankCell(tf.keras.layers.Layer):
               "relax_trainable": self.relax_trainable,
               "samp_interval": self.samp_interval,
               "relax_name": self.relax_name}  
-###
+  ###
 
 ### Hidden (polynomial) Layer
 class HiddenLayer(tf.keras.layers.Layer):
@@ -193,7 +193,7 @@ class HiddenLayer(tf.keras.layers.Layer):
             "degree": self.degree,
             "w_init": self.w_init, "w_trainable": self.w_trainable, "w_reg": self.w_reg, "w_name": self.w_name,
             "c_init": self.w_init, "c_trainable": self.c_trainable, "c_reg": self.c_reg, "c_name": self.c_name}
-  ###
+###
 
 ### Interaction Layer
 class InteractionLayer(tf.keras.layers.Layer):
