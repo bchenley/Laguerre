@@ -95,7 +95,7 @@ class FilterbankCell(tf.keras.layers.Layer):
       
       self.relax = [[]]*num_inputs
       for i in range(len(self.units)):
-          self.relax[i] = self.add_weight(shape = (num_inputs,),
+          self.relax[i] = self.add_weight(shape = (1,),
                                         initializer = self.relax_init[i],
                                         trainable = self.relax_trainable,
                                         name = self.relax_name[i])  
@@ -330,3 +330,4 @@ class OutputLayer(tf.keras.layers.Layer):
 def nmse(y_true,y_pred):
   return tf.reduce_mean(tf.pow(y_true-y_pred,2)) / tf.reduce_mean(y_true**2)  
 ###
+
