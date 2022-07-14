@@ -282,7 +282,7 @@ class OutputLayer(tf.keras.layers.Layer):
       self.bo_reg = bo_reg
       self.bo_name = bo_name
 
-      self.bo = tf.Variable(initial_value = tf.zeros((1,units),
+      self.bo = tf.Variable(initial_value = tf.zeros((1,units)),
                             trainable = bo_trainable,
                             name = 'bo')
 
