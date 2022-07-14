@@ -91,7 +91,7 @@ class FilterbankCell(tf.keras.layers.Layer):
   
   def build(self, input_shape):
     
-      num_inputs = inut_shape[-1]
+      num_inputs = input_shape[-1]
       
       self.relax = [[]]*num_inputs
       for i in range(len(self.units)):
