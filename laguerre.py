@@ -74,7 +74,7 @@ class DLF:
 class FilterbankCell(tf.keras.layers.Layer):
 
   def __init__(self, units = (1,),
-              relax_init = (0.5,), relax_trainable = True,                    
+              relax_init = (tf.initializers.Constant(0.5),), relax_trainable = True,                    
               samp_interval = 1, 
               relax_name = ('relax1',),
               **kwargs):
@@ -86,15 +86,20 @@ class FilterbankCell(tf.keras.layers.Layer):
       self.relax_trainable = relax_trainable
       self.samp_interval = samp_interval
       self.relax_name = relax_name
-     
-      self.relax = ()
-      for i in range(len(self.units)):
-          self.relax += (tf.Variable(initial_value = relax_init[i],
-                                    trainable = relax_trainable,
-                                    name = relax_name[i]),)      
-
+      
       super(FilterbankCell, self).__init__(**kwargs)
-
+  
+  def build(self, input_shape):
+    
+      num_inputs = inut_shape[-1]
+      
+      self.relax = [[]]*num_inputs
+      for i in range(len(self.units)):
+          self.relax[i] = tf.add_weight(shape = (num_inputs,),
+                                        initializer = relax_init[i],
+                                        trainable = relax_trainable,
+                                        name = relax_name[i])  
+          
   def call(self, input, state):
 
     prev_output = state
@@ -220,14 +225,25 @@ class InteractionLayer(tf.keras.layers.Layer):
       super(InteractionLayer, self).__init__()
 
   def build(self, input_shape):
+      
+      num_inputs = len(input_shape)
+      
+      if num_inputs == 1:
+        self.wi_init == tf.initializers.Constant(1.)
+        self.wi_trainable = False
+        
+        self.ci_init == tf.initializers.Constant(1.)
+        self.ci_trainable = False
+        
+        self.degree = 1.
+      
+      self.wi = [[]]*num_inputs
 
-      self.wi = ()
+      for i in range(num_inputs):
 
-      for i in range(len(input_shape)):
-
-        self.wi += (self.add_weight(shape = (input_shape[i][-1], self.units), 
+        self.wi[i] = self.add_weight(shape = (input_shape[i][-1], self.units), 
                                     initializer = self.wi_init, trainable = self.wi_trainable,
-                                    regularizer = self.wi_reg, name = self.wi_name[i]),)
+                                    regularizer = self.wi_reg, name = self.wi_name[i])
 
       self.ci = self.add_weight(shape = (self.degree, self.units), 
                                 initializer = self.ci_init, trainable = self.ci_trainable,
@@ -282,10 +298,6 @@ class OutputLayer(tf.keras.layers.Layer):
       self.bo_reg = bo_reg
       self.bo_name = bo_name
 
-      self.bo = tf.Variable(initial_value = tf.zeros((1,units)),
-                            trainable = bo_trainable,
-                            name = 'bo')
-
       super(OutputLayer, self).__init__(**kwargs)
 
   def build(self, input_shape):
@@ -295,13 +307,16 @@ class OutputLayer(tf.keras.layers.Layer):
                                 trainable = self.wo_trainable,
                                 regularizer = self.wo_reg,
                                 name = self.wo_name)
+      
+      self.bo = self.add_weight(shape = (self.units,),
+                                initializer = self.bo_init, 
+                                trainable = self.bo_trainable,
+                                regularizer = self.bo_reg,
+                                name = self.bo_name)
 
   def call(self, input):
-      
-      wo = self.wo
-      bo = self.bo
-      
-      outputs = input @ wo + bo
+
+      outputs = input @ self.wo + self.bo
 
       return outputs
 
