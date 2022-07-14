@@ -95,7 +95,7 @@ class FilterbankCell(tf.keras.layers.Layer):
       
       self.relax = [[]]*num_inputs
       for i in range(len(self.units)):
-          self.relax[i] = tf.add_weight(shape = (num_inputs,),
+          self.relax[i] = self.add_weight(shape = (num_inputs,),
                                         initializer = relax_init[i],
                                         trainable = relax_trainable,
                                         name = relax_name[i])  
