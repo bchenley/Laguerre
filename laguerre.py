@@ -1,3 +1,28 @@
+## import modules
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import sklearn as sk
+
+import itertools
+import math
+import datetime
+
+import sys
+sys.modules.keys()
+
+import sklearn as sk
+
+import os
+import csv
+import datetime
+
+import IPython
+import IPython.display
+import seaborn as sns
+##
+
 def generate_dlf_output_now(input_now, output_prev, relax, sampling_interval=1):
   '''
   Arguments:
