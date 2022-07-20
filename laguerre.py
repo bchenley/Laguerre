@@ -52,6 +52,48 @@ def generate_dlf_output_now(input_now, output_prev, relax, sampling_interval=1):
 
   return output_now
 
+class DLF:
+
+  def __init__(self, units = 1, relax = 0.5, sampling_interval = 1, threshold = 1e-4):
+    
+      '''
+      units = number of discrete Laguerre functions.
+      relax = relaxation parameter. Must be between (0,1)
+      sampling_interval = sampling_interval
+      threshold = Minimum absolute value all functions must remain below before stopping
+      '''
+      
+      self.units = units
+      self.relax = relax
+      self.sampling_interval = sampling_interval
+      self.threshold = threshold
+      
+      sqrt_relax = np.sqrt(relax)
+      sqrt_1_minus_relax = np.sqrt(1-relax)
+
+      output = generate_dlf_output_now(input_now = 1, output_prev = tf.zeros((1,units)), relax = relax, sampling_interval = sampling_interval)      
+      values = output
+      
+      while np.any(tf.abs(output) > threshold):       
+        output = generate_dlf_output_now(input_now = 0, output_prev = output, relax = relax, sampling_interval = sampling_interval)
+        values = tf.concat([values, output], axis = 0)
+
+      self.values = values
+      
+  def conv(self, input):  
+      '''
+      1D convolution of input with each DLF (`self.values`).
+      `input` must be a 1D tensor
+      ''' 
+      values = self.values
+
+      output = np.zeros((len(input),values.shape[1]))
+
+      for i,val in enumerate(tf.transpose(values)):
+          output[:,i] = np.convolve(input,val.numpy())[:len(input)]
+
+      return tf.constant(output)
+
 def polynomial(x, c):
   '''
   x = [-1,1]
