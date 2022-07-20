@@ -472,3 +472,7 @@ class LVN(tf.keras.Model):
 def nmse(y_true,y_pred):
   return tf.reduce_mean(tf.pow(y_true-y_pred,2)) / tf.reduce_mean(y_true**2)  
 ###
+
+### Get LVN model
+
+###
