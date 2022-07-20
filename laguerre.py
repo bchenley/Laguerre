@@ -286,24 +286,6 @@ class OutputLayer(tf.keras.layers.Layer):
 ###
 
 ###
-input = tf.keras.Input(shape = (N,1))
- 
-fb_cell = FilterbankCell(filters = [3, 3],
-                         relax_init = [tf.keras.initializers.constant(0.5)]*2)
-
-filterbank_output = tf.keras.layers.RNN(cell = fb_cell,
-                                        return_sequences = True, 
-                                        return_state = False,
-                                        name = 'filterbank_layer')(input)
-
-hidden_layer_output = HiddenLayer1(hidden_units = 2,
-                                   hidden_degrees = [2,2],
-                                   name = 'hidden_layer')(filterbank_output)
-
-output_layer_output = OutputLayer(num_outputs = 1)(hidden_layer_output)
-###
-
-###
 class LVN(tf.keras.Model):
   def __init__(self, 
                # inputs, outputs
