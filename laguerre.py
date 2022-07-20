@@ -424,28 +424,28 @@ class LVN(tf.keras.Model):
                                     bo_reg = bo_reg,
                                     name = 'output_layer')
 
-    def call(self, input):
+  def call(self, inputs):
 
-      filterbank_output = [[]]*self.num_inputs
-      hidden_layer_output = [[]]*self.num_inputs
-      for i in range(self.num_inputs):
-        filterbank_output[i] = self.filterbank[i](input[:,:,i:i+1])
-        hidden_layer_output[i] = self.hidden_layer[i](filterbank_output[i])
+    filterbank_output = [[]]*self.num_inputs
+    hidden_layer_output = [[]]*self.num_inputs
+    for i in range(self.num_inputs):
+      filterbank_output[i] = self.filterbank[i](inputs[:,:,i:i+1])
+      hidden_layer_output[i] = self.hidden_layer[i](filterbank_output[i])
 
-      self.interaction_layer_output = None
-      if self.num_inputs > 1:
-        x = self.interaction_layer(hidden_layer_output)
-        self.interaction_layer_output = x
-      else:
-        x = tf.concat(hidden_layer_output, axis = 2)
-      
-      output_layer_output = self.output_layer(x)
+    self.interaction_layer_output = None
+    if self.num_inputs > 1:
+      x = self.interaction_layer(hidden_layer_output)
+      self.interaction_layer_output = x
+    else:
+      x = tf.concat(hidden_layer_output, axis = 2)
+    
+    output_layer_output = self.output_layer(x)
 
-      self.filterbank_output = filterbank_output
-      self.hidden_layer_output = hidden_layer_output
-      self.output_layer_output = output_layer_output
+    self.filterbank_output = filterbank_output
+    self.hidden_layer_output = hidden_layer_output
+    self.output_layer_output = output_layer_output
 
-      return output_layer_output      
+    return output_layer_output      
 ###
 
 ### NMSE  
