@@ -23,6 +23,46 @@ import IPython.display
 import seaborn as sns
 ##
 
+def generate_dlf_output_now(input_now, output_prev, relax, sampling_interval=1):
+  '''
+  Arguments:
+  input_now: scalar
+  output_prev: 1D tensor 
+  relax: scalar
+  sampling_interval: scalar
+
+  Returns:
+  output_now: tensor
+  '''
+
+  num_outputs = output_prev.shape[-1]
+  
+  sqrt_relax = tf.sqrt(relax)
+  sqrt_1_minus_relax = tf.sqrt(1-relax)
+
+  # 0th order DLF
+  output_now = sqrt_relax*output_prev[:,0:1] + sampling_interval*sqrt_1_minus_relax*input_now
+  #
+
+  # ith order DLFs
+  for i in range(1,num_outputs):    
+    output_now_i = sqrt_relax*(output_prev[:,i:i+1] + output_now[:,i-1:i]) - output_prev[:,i-1:i]
+    output_now = tf.concat([output_now, output_now_i], axis=1)
+  #  
+
+  return output_now
+
+def polynomial(x, c):
+  '''
+  x = [-1,1]
+  c = [degree,1]
+  '''
+
+  degree = c.shape[0]
+  pows = tf.range(1,degree+1, dtype='float32')
+
+  return tf.pow(x, pows) @ c
+
 class FilterbankCell1(tf.keras.layers.Layer):
   '''
   Filterbank layer for a single input.  
@@ -380,6 +420,10 @@ class LVN(tf.keras.Model):
       return output_layer_output      
 ###
 
+### NMSE  
+def nmse(y_true,y_pred):
+  return tf.reduce_mean(tf.pow(y_true-y_pred,2)) / tf.reduce_mean(y_true**2)  
+###
 
 # ## import modules
 # import tensorflow as tf
