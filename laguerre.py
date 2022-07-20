@@ -115,6 +115,7 @@ class FilterbankCell1(tf.keras.layers.Layer):
                relax_init = [tf.keras.initializers.constant(0.5)], relax_trainable = True,
                relax_constraint = tf.keras.constraints.MinMaxNorm(min_value=0.01, max_value=0.95),
                sampling_interval = 1, 
+               input_label = '1',
                **kwargs):
     super(FilterbankCell1, self).__init__(**kwargs)
 
@@ -127,13 +128,15 @@ class FilterbankCell1(tf.keras.layers.Layer):
     self.state_size = filters
     self.output_size = filters
 
+    self.input_label = input_label
+
     self.relax = [[]]*self.num_filterbanks
     for i in range(self.num_filterbanks):
       self.relax[i] = self.add_weight(shape = (1,),
                                       initializer = self.relax_init[i],
                                       trainable = self.relax_trainable,
                                       constraint = self.relax_constraint,
-                                      name = 'relax' + str(i+1))  
+                                      name = 'relax'+'_'+self.input_label)
 
   def call(self, 
            input_now, output_prev):
@@ -144,12 +147,18 @@ class FilterbankCell1(tf.keras.layers.Layer):
 
     return output_now, output_now
 
+  def get_config(self):
+    return {"filters": self.filters,
+            "relax_init": self.relax_init, "relax_trainable": self.relax_trainable, "relax_constraint": self.relax_constraint,
+            "sampling_interval": self.sampling_interval, "input_label": self.input_label}  
+
 ### Hidden Layer
 class HiddenLayer1(tf.keras.layers.Layer):
   
-  def __init__(self, hidden_units = 1, hidden_degrees = (1.,),                    
+  def __init__(self, hidden_units = 1, hidden_degrees = [1.],                    
                w_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.01), w_trainable = True, w_reg = None,
                c_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.01), c_trainable = True, c_reg = None,
+               input_label = '1',
                **kwargs):
       
       self.hidden_units = hidden_units
@@ -162,7 +171,9 @@ class HiddenLayer1(tf.keras.layers.Layer):
       self.c_init = c_init
       self.c_trainable = c_trainable
       self.c_reg = c_reg
-      
+
+      self.input_label = input_label
+
       super(HiddenLayer1, self).__init__()
 
   def build(self, input_shape):
@@ -176,12 +187,12 @@ class HiddenLayer1(tf.keras.layers.Layer):
 
       self.w[i] = self.add_weight(shape = (input_shape[i][-1], self.hidden_units), 
                                   initializer = self.w_init, trainable = self.w_trainable,
-                                  regularizer = self.w_reg, name = 'w'+str(i+1))
+                                  regularizer = self.w_reg, name = 'w'+'_'+self.input_label)
     
     for j in range(self.hidden_units):
-      self.c[j] = self.add_weight(shape = (self.hidden_degrees[j], 1),
+      self.c[j] = self.add_weight(shape = (int(self.hidden_degrees[j]), 1),
                                   initializer = self.c_init, trainable = self.c_trainable,
-                                  regularizer = self.c_reg, name = 'c_'+str(j+1))
+                                  regularizer = self.c_reg, name = 'c'+str(j+1)+'_'+self.input_label)
   
   def call(self, input):
 
@@ -202,7 +213,8 @@ class HiddenLayer1(tf.keras.layers.Layer):
     return {"hidden_units": self.hidden_units,
             "hidden_degrees": self.hidden_degrees,
             "w_init": self.w_init, "w_trainable": self.w_trainable, "w_reg": self.w_reg,
-            "c_init": self.w_init, "c_trainable": self.c_trainable, "c_reg": self.c_reg}
+            "c_init": self.w_init, "c_trainable": self.c_trainable, "c_reg": self.c_reg,
+            "input_label": self.input_label}
 ###
 
 ### Interaction Layer
@@ -211,6 +223,7 @@ class InteractionLayer(tf.keras.layers.Layer):
   def __init__(self, interaction_units = 1, interaction_degrees = (1.,),                    
                wi_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.01), wi_trainable = True, wi_reg = None,
                ci_init = tf.keras.initializers.random_normal(mean = 0.0, stddev = 0.01), ci_trainable = True, ci_reg = None,
+               input_labels = None,
                **kwargs):
       
       self.interaction_units = interaction_units
@@ -224,6 +237,8 @@ class InteractionLayer(tf.keras.layers.Layer):
       self.ci_trainable = ci_trainable
       self.ci_reg = ci_reg
       
+      self.input_labels = input_labels
+
       super(InteractionLayer, self).__init__()
 
   def build(self, input_shape):
@@ -247,10 +262,10 @@ class InteractionLayer(tf.keras.layers.Layer):
 
       self.wi[i] = self.add_weight(shape = (input_shape[i][-1], self.interaction_units), 
                                   initializer = self.wi_init, trainable = self.wi_trainable,
-                                  regularizer = self.wi_reg, name = 'wi'+str(i+1))
+                                  regularizer = self.wi_reg, name = 'wi_'+self.input_labels[i])
     
     for j in range(self.interaction_units):
-      self.ci[j] = self.add_weight(shape = (self.interaction_degrees[j], 1),
+      self.ci[j] = self.add_weight(shape = (int(self.interaction_degrees[j]), 1),
                                    initializer = self.ci_init, trainable = self.ci_trainable,
                                    regularizer = self.ci_reg, name = 'ci_'+str(j+1))
   
@@ -273,7 +288,8 @@ class InteractionLayer(tf.keras.layers.Layer):
     return {"interaction_units": self.interaction_units,
             "interaction_degrees": self.interaction_degrees,
             "wi_init": self.wi_init, "wi_trainable": self.wi_trainable, "wi_reg": self.wi_reg,
-            "ci_init": self.wi_init, "ci_trainable": self.ci_trainable, "ci_reg": self.ci_reg}
+            "ci_init": self.wi_init, "ci_trainable": self.ci_trainable, "ci_reg": self.ci_reg,
+            "input_labels": self.input_labels}
 ###
 
 ### Output Layer
@@ -331,7 +347,7 @@ class OutputLayer(tf.keras.layers.Layer):
 class LVN(tf.keras.Model):
   def __init__(self, 
                # inputs, outputs
-               num_inputs = 1, num_outputs = 1,
+               num_inputs = 1, num_outputs = 1, input_labels = ['1'],
                # filterbank
                filters=[[1]], relax_init=[tf.keras.initializers.constant(0.5)], 
                relax_trainable=[True], relax_constraint=[tf.keras.constraints.MinMaxNorm(min_value=0.01, max_value=0.95)], 
@@ -352,6 +368,7 @@ class LVN(tf.keras.Model):
     super(LVN, self).__init__(**kwargs)
 
     self.num_inputs = num_inputs
+    self.input_labels = input_labels
     
     # filterbank and hidden layer
     self.filters = filters
@@ -376,7 +393,8 @@ class LVN(tf.keras.Model):
                                            relax_init = relax_init[i],
                                            relax_trainable = relax_trainable[i], 
                                            relax_constraint = relax_constraint[i], 
-                                           sampling_interval = sampling_interval)
+                                           sampling_interval = sampling_interval,
+                                           input_label = input_labels[i])
        
        self.filterbanks[i] = tf.keras.layers.RNN(cell = filterbank_cell_i,
                                                  return_sequences = True, 
@@ -387,6 +405,7 @@ class LVN(tf.keras.Model):
                                            hidden_degrees=self.hidden_degrees[i], 
                                            w_init=self.w_init[i], w_trainable=self.w_trainable[i], w_reg=self.w_reg[i], 
                                            c_init=self.c_init[i], c_trainable=self.c_trainable[i], c_reg=self.c_reg[i],
+                                           input_label = input_labels[i],
                                            name = 'hidden_layer' + str(i+1))
     
     # interaction layer
@@ -405,6 +424,7 @@ class LVN(tf.keras.Model):
                                                 interaction_degrees = interaction_degrees,
                                                 w_init=w_init, w_trainable=w_trainable, w_reg=w_reg, 
                                                 c_init=c_init, c_trainable=c_trainable, c_reg=c_reg,
+                                                input_labels = input_labels,
                                                 name = 'interaction_layer')
     
     # output lauyer  
@@ -429,7 +449,7 @@ class LVN(tf.keras.Model):
     filterbank_output = [[]]*self.num_inputs
     hidden_layer_output = [[]]*self.num_inputs
     for i in range(self.num_inputs):
-      filterbank_output[i] = self.filterbank[i](inputs[:,:,i:i+1])
+      filterbank_output[i] = self.filterbanks[i](inputs[:,:,i:i+1])
       hidden_layer_output[i] = self.hidden_layer[i](filterbank_output[i])
 
     self.interaction_layer_output = None
